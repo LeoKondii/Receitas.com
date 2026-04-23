@@ -38,31 +38,10 @@ src/
 │   └── ErrorMessage.jsx
 ├── contexts/
 │   ├── RecipeContext.jsx
-│   ├── recipeReducer.js
-│   └── recipeActions.js
-├── services/
-│   └── mealApi.js
+│   └── recipeReducer.js
 ├── App.jsx
 └── main.jsx
 ```
-
----
-
-## Estado global
-
-Gerenciado com `useReducer` via Context API:
-
-```js
-{
-  recipes: [],
-  loading: false,
-  error: "",
-  selectedRecipe: null,
-  searchTerm: ""
-}
-```
-
----
 
 ## Como rodar localmente
 
@@ -89,4 +68,4 @@ GET https://www.themealdb.com/api/json/v1/1/search.php?s={termo}
 
 ## Autor
 
-Leonardo Kondii — Programação Web Fullstack
+Leonardo Kondii - Programação Web Fullstack
