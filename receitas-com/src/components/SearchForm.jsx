@@ -28,14 +28,17 @@ export default function SearchForm() {
             placeholder="Ex: pasta, chicken, soup..."
             className={`search-input ${errors.search ? "search-input--error" : ""}`}
             autoComplete="off"
+            aria-invalid={errors.search ? "true" : "false"}
+            aria-describedby={errors.search ? "search-error" : undefined}
             {...register("search", {
+              required: "Campo obrigatório",
               minLength: { value: 2, message: "Digite pelo menos 2 letras" },
             })}
           />
           {state.loading && <span className="search-spinner" />}
         </div>
         {errors.search && (
-          <p className="search-hint search-hint--error" role="alert">
+          <p id="search-error" className="search-hint search-hint--error" role="alert">
             ⚠ {errors.search.message}
           </p>
         )}
