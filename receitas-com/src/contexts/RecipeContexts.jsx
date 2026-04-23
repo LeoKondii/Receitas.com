@@ -1,42 +1,58 @@
-import { createContext, useContext, useReducer, useCallback, useRef } from "react";
+import { createContext, useContext, useReducer, useCallback, useRef, useEffect, useMemo } from "react";
 import { recipeReducer, initialState } from "./recipeReducer";
 
 const RecipeContext = createContext(null);
+
+const API_CONFIG = { // Configurações da API e debounce, pode alterar
+  BASE_URL: "https://www.themealdb.com/api/json/v1/1",
+  DEBOUNCE_MS: 400,
+  RESULTS_LIMIT: 12,
+};
 
 export function RecipeProvider({ children }) {
   const [state, dispatch] = useReducer(recipeReducer, initialState);
   const debounceTimer = useRef(null);
 
-  const searchRecipes = useCallback(async (term) => { // função para buscar receitas, com debounce
-    dispatch({ type: "SET_SEARCH_TERM", payload: term });
+    useEffect(() => {
+        return () => {
+        if (debounceTimer.current) {
+            clearTimeout(debounceTimer.current);
+        }
+        };
+    }, []);
 
-    if (!term || term.trim().length < 2) {
-      dispatch({ type: "CLEAR_RESULTS" });
-      return;
-    }
+    const searchRecipes = useCallback(async (term) => {
+        dispatch({ type: "SET_SEARCH_TERM", payload: term });
 
-    if (debounceTimer.current) {
-      clearTimeout(debounceTimer.current);
-    }
+        if (!term || term.trim().length < 2) {
+        dispatch({ type: "CLEAR_RESULTS" });
+        return;
+        }
 
-    debounceTimer.current = setTimeout(async () => {
-      dispatch({ type: "SET_LOADING", payload: true });
+        if (debounceTimer.current) {
+        clearTimeout(debounceTimer.current);
+        }
 
-      try {
-        const response = await fetch(
-          `https://www.themealdb.com/api/json/v1/1/search.php?s=${encodeURIComponent(term.trim())}`
-        );
+        debounceTimer.current = setTimeout(async () => {
+            dispatch({ type: "SET_LOADING", payload: true });
 
-        if (!response.ok) throw new Error("Erro na requisição");
+            try {
+                const response = await fetch(
+                `${API_CONFIG.BASE_URL}/search.php?s=${encodeURIComponent(term.trim())}`
+                );
 
-        const data = await response.json();
-        const meals = data.meals ? data.meals.slice(0, 12) : []; //alterar aqui se quiser mais de 12 resultados
-        dispatch({ type: "SET_RECIPES", payload: meals });
-      } catch {
-        dispatch({ type: "SET_ERROR", payload: "Erro ao buscar receitas" });
-      }
-    }, 400); //timer de 400ms para debounce
-  }, []);
+                if (!response.ok) throw new Error(`Erro HTTP: ${response.status}`);
+
+                const data = await response.json();
+                const meals = data.meals ? data.meals.slice(0, API_CONFIG.RESULTS_LIMIT) : [];
+                dispatch({ type: "SET_RECIPES", payload: meals });
+            } catch (error) {
+                dispatch({ type: "SET_ERROR", payload: error.message });
+            } finally {
+                dispatch({ type: "SET_LOADING", payload: false }); // Resetar loading
+            }
+        }, API_CONFIG.DEBOUNCE_MS);
+    }, []);
 
   const selectRecipe = useCallback((recipe) => {
     dispatch({ type: "SET_SELECTED_RECIPE", payload: recipe });
@@ -46,8 +62,14 @@ export function RecipeProvider({ children }) {
     dispatch({ type: "SET_SELECTED_RECIPE", payload: null });
   }, []);
 
+  // Evitar recriação do value object
+  const value = useMemo(
+    () => ({ state, searchRecipes, selectRecipe, closeModal }),
+    [state, searchRecipes, selectRecipe, closeModal]
+  );
+
   return (
-    <RecipeContext.Provider value={{ state, searchRecipes, selectRecipe, closeModal }}>
+    <RecipeContext.Provider value={value}>
       {children}
     </RecipeContext.Provider>
   );
