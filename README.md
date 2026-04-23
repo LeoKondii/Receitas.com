@@ -1,16 +1,92 @@
-# React + Vite
+# Receitas.com
 
-This template provides a minimal setup to get React working in Vite with HMR and some ESLint rules.
+Buscador de receitas desenvolvido como projeto final da disciplina de Programação Web Fullstack.
 
-Currently, two official plugins are available:
+Acesse: https://receitas-q4pkx21nu-leokondiis-projects.vercel.app
 
-- [@vitejs/plugin-react](https://github.com/vitejs/vite-plugin-react/blob/main/packages/plugin-react) uses [Oxc](https://oxc.rs)
-- [@vitejs/plugin-react-swc](https://github.com/vitejs/vite-plugin-react/blob/main/packages/plugin-react-swc) uses [SWC](https://swc.rs/)
+---
 
-## React Compiler
+## Sobre o projeto
 
-The React Compiler is not enabled on this template because of its impact on dev & build performances. To add it, see [this documentation](https://react.dev/learn/react-compiler/installation).
+Receitas.com é uma Single Page Application (SPA) — toda a aplicação roda em uma única página HTML, sem redirecionamentos ou recarregamentos. A navegação entre busca, resultados e detalhes acontece de forma instantânea, com o React atualizando apenas os componentes necessários na tela. Isso proporciona uma experiência fluida, sem as interrupções de uma aplicação web tradicional.
 
-## Expanding the ESLint configuration
+Os dados vêm da TheMealDB, uma API pública de receitas. O usuário digita um ingrediente ou nome de prato, e a aplicação consulta a API automaticamente, exibindo até 12 resultados em cards. Ao clicar em um card, um modal exibe os ingredientes completos, o modo de preparo e um link para o YouTube quando disponível.
 
-If you are developing a production application, we recommend using TypeScript with type-aware lint rules enabled. Check out the [TS template](https://github.com/vitejs/vite/tree/main/packages/create-vite/template-react-ts) for information on how to integrate TypeScript and [`typescript-eslint`](https://typescript-eslint.io) in your project.
+---
+
+## Tecnologias
+
+- React 19 com Vite
+- Context API com useReducer para estado global
+- react-hook-form para o formulário de busca e validação
+- TheMealDB API como fonte de dados
+- CSS puro, sem frameworks de estilo
+
+---
+
+## Estrutura
+
+```
+src/
+├── components/
+│   ├── Header.jsx
+│   ├── SearchForm.jsx
+│   ├── RecipeList.jsx
+│   ├── RecipeCard.jsx
+│   ├── RecipeModal.jsx
+│   ├── Loader.jsx
+│   └── ErrorMessage.jsx
+├── contexts/
+│   ├── RecipeContext.jsx
+│   ├── recipeReducer.js
+│   └── recipeActions.js
+├── services/
+│   └── mealApi.js
+├── App.jsx
+└── main.jsx
+```
+
+---
+
+## Estado global
+
+Gerenciado com `useReducer` via Context API:
+
+```js
+{
+  recipes: [],
+  loading: false,
+  error: "",
+  selectedRecipe: null,
+  searchTerm: ""
+}
+```
+
+---
+
+## Como rodar localmente
+
+```bash
+git clone https://github.com/LeoKondii/Receitas.com.git
+cd Receitas.com
+npm install
+npm run dev
+```
+
+Acesse `http://localhost:5173`.
+
+---
+
+## API
+
+TheMealDB — https://www.themealdb.com
+
+```
+GET https://www.themealdb.com/api/json/v1/1/search.php?s={termo}
+```
+
+---
+
+## Autor
+
+Leonardo Kondii — Programação Web Fullstack
